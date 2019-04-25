@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include "context.h"
 #include "myhtml/api.h"
 
-
 class element
 {   myhtml_tree_node_t *node_;
 public:
@@ -35,59 +34,7 @@ public:
     void next () { if (is_valid ()) node_ = myhtml_node_next (node_); }
     myhtml_tag_id_t tag () const { return myhtml_node_tag_id (node_); }
     attribute property () const { return attribute (myhtml_node_attribute_first (node_)); }
-    void verify (const directory& d, context& c) const;
-    bool is_valid () const { return node_ != nullptr; } };
-
-inline bool is_base (element& e) { return (e.tag () == MyHTML_TAG_BASE); }
-inline bool is_form (element& e) { return (e.tag () == MyHTML_TAG_FORM); }
-inline bool is_head (element& e) { return (e.tag () == MyHTML_TAG_HEAD); }
-inline bool is_object (element& e) { return (e.tag () == MyHTML_TAG_OBJECT); }
-
-inline bool has_cite (element& e)
-{   switch (e.tag ())
-    {   case MyHTML_TAG_ARTICLE :
-        case MyHTML_TAG_BLOCKQUOTE :
-        case MyHTML_TAG_DEL :
-        case MyHTML_TAG_INS :
-        case MyHTML_TAG_Q :
-        case MyHTML_TAG_SECTION :
-            return true; }
-    return false; }
-
-inline bool has_codebase (element& e)
-{   switch (e.tag ())
-    {   case MyHTML_TAG_APPLET :
-		case MyHTML_TAG_OBJECT :
-            return true; }
-    return false; }
-
-inline bool has_href (element& e)
-{   switch (e.tag ())
-    {   case MyHTML_TAG_A :
-        case MyHTML_TAG_AREA :
-		case MyHTML_TAG_FRAME :
-		case MyHTML_TAG_LINK :
-            return true; }
-    return false; }
-
-inline bool has_src (element& e)
-{   switch (e.tag ())
-    {   case MyHTML_TAG_AUDIO :
-        case MyHTML_TAG_EMBED :
-        case MyHTML_TAG_IFRAME :
-        case MyHTML_TAG_IMG :
-        case MyHTML_TAG_INPUT :
-        case MyHTML_TAG_SCRIPT :
-        case MyHTML_TAG_SOURCE :
-        case MyHTML_TAG_TRACK :
-        case MyHTML_TAG_VIDEO :
-            return true; }
-    return false; }
-
-inline bool has_usemap (element& e)
-{   switch (e.tag ())
-    {   case MyHTML_TAG_IMG :
-        case MyHTML_TAG_INPUT :
-		case MyHTML_TAG_OBJECT :
-            return true; }
-    return false; }
+    void verify_children (const directory& d, context& c) const;
+    void verify_self (const directory& d, context& c) const;
+    bool is_valid () const { return node_ != nullptr; }
+    bool has_url () const; };

@@ -26,10 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include "context.h"
 #include <iostream>
 
-
-
 int main (int argc, char** argv)
-{   context c (argc, argv);
+{   attribute::init ();
+    context c (argc, argv);
     if (! c.is_valid ()) return 3;
     if (c.verbose ()) ::std::cout << "Collecting information...\n";
     directory d (c.root ());

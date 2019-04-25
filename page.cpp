@@ -55,7 +55,7 @@ bool page::parse (const ::std::string& content)
 void page::verify (const directory& d, context& c) const
 {   element e (document ());
     ::std::string base;
-    e.verify (d, c); }
+    e.verify_children (d, c); }
 
 void page::report () const
 {   ::std::cout << "html_ ";

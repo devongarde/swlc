@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 class directory
 {   typedef ::std::shared_ptr <directory> self_ptr;
-    typedef ::std::unordered_map <::std::string, self_ptr> map_t;
+    typedef ::std::unordered_map < ::std::string, self_ptr > map_t;
     typedef map_t::value_type value_t;
     ::boost::filesystem::path path_;
     map_t content_;
@@ -57,6 +57,4 @@ public:
 
 bool add_virtual (directory& d, const ::std::string& assignment);
 ::std::string read_text_file (const ::std::string& name);
-inline bool is_webpage (const ::std::string& name, const vstr_t& extensions)
-{   ::std::string extension (::boost::filesystem::path (name).extension ().string ().substr (1));
-    return is_one_of (extension, extensions); }
+inline bool is_webpage (const ::std::string& name, const vstr_t& extensions);

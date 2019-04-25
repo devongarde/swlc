@@ -32,7 +32,6 @@ using namespace boost::filesystem;
 directory* directory::root_ = nullptr;
 external directory::external_;
 
-
 bool directory::is_present (::boost::filesystem::path::iterator& i, const ::boost::filesystem::path::iterator& last) const
 {   if (i == last) return false;
     if (i -> empty ()) return false;
@@ -61,7 +60,7 @@ bool directory::add_to_content (::boost::filesystem::directory_entry& i)
 {   if (is_regular_file (i.path ()))
         return content_.insert (value_t (i.path ().filename ().string (), nullptr)).second;
     if (is_directory (i.path ()))
-        return content_.insert (value_t (i.path ().filename ().string (), new directory (i.path ().string (), this))).second;
+        return content_.insert (value_t (i.path ().filename ().string (), self_ptr (new directory (i.path ().string (), this)))).second;
     return false; }
 
 bool directory::is_valid () const
@@ -69,7 +68,7 @@ bool directory::is_valid () const
 
 bool directory::add_virtual (const ::std::string& virt, const ::std::string& path)
 {   if (is_present (virt)) return false;
-    return content_.insert (value_t (virt, new directory (path, this))).second; }
+    return content_.insert (directory::value_t (virt, self_ptr (new directory (path, this)))).second; }
 
 void directory::report (const ::std::string& indent) const
 {   for (auto i : content_)
@@ -167,12 +166,16 @@ void directory::verify_external (context& c, const ::std::string& url) const
             break; }
     ::std::cerr << " (" << c.code () << ").\n"; }
 
-
 bool add_virtual (directory& d, const ::std::string& assignment)
 {   size_t len = assignment.length ();
     size_t sz = assignment.find ('=');
     if (sz == ::std::string::npos || sz < 1 || sz >= len - 1) return false;
     return d.add_virtual (assignment.substr (0, sz), assignment.substr (sz + 1)); }
+
+bool is_webpage (const ::std::string& name, const vstr_t& extensions)
+{   ::std::string ext (::boost::filesystem::path (name).extension ().string ());
+    if (ext.empty ()) return false;
+    return is_one_of (ext.substr (1), extensions); }
 
 ::std::string read_text_file (const::std::string& name)
 {   path p (name);
@@ -184,4 +187,3 @@ bool add_virtual (directory& d, const ::std::string& assignment)
             f.close ();
             return res.str (); } }
     return ::std::string (); }
-

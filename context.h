@@ -30,7 +30,6 @@ class context
     vstr_t extensions_, site_, virtuals_;
 public:
     context (int argc, char** argv);
-
     const ::std::string base () const { return base_; }
     bool debug () const { return debug_; }
     int code () const { return code_; }
@@ -46,7 +45,6 @@ public:
     bool verbose () const { return verbose_; }
     const vstr_t virtuals () const { return virtuals_; }
     bool is_valid () const { return valid_; }
-
     void base (const ::std::string& s) { base_ = s; }
     void code (const int i) { code_ = i; }
     void debug (const bool b) { debug_ = b; }

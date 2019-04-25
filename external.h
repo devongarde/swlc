@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #define HTTPS_PROTOCOL      "https"
 
 class external
-{   typedef ::std::unordered_map <::std::string, int> map_t;
+{   typedef ::std::unordered_map < ::std::string, int > map_t;
     typedef map_t::value_type value_t;
     map_t url_;
 public:

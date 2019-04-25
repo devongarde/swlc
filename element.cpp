@@ -23,47 +23,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include <string>
 #include <iostream>
 
-void element::verify (const directory& d, context& c) const
+void element::verify_self (const directory& d, context& c) const
+{   if (tag () == MyHTML_TAG_BASE)
+    {    for (attribute a = property (); a.is_valid (); a.next ())
+            if (a.is_href ())
+            {   ::std::string href (a.value ());
+                if (href.empty ())
+                {   ::std::cerr << c.filename () << " has empty base element.\n"; }
+                else if (href.find (':') != ::std::string::npos)
+                {   if (c.verbose ()) ::std::cerr << c.filename ()  << " has offsite base " << a.value () << ", abandoning check.\n";
+                    return; }
+                if (href.at (0) == '#')
+                {  if (c.verbose ()) ::std::cerr << c.filename ()  << " ignoring bizarre base " << a.value () << ".\n"; }
+                c.base (href); } }
+    else if (c.microdata () || has_url ())
+    {   for (attribute a = property (); a.is_valid (); a.next ())
+            if (a.url_expected (c)) d.verify_url (c, a.value ()); }
+    verify_children (d, c); }
+
+void element::verify_children (const directory& d, context& c) const
 {   if (is_valid ())
         for (element e = child (); e.is_valid (); e.next ())
-        {   if (is_base (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_href (a))
-                    {   ::std::string href (a.value ());
-                        if (href.empty ())
-                        {   ::std::cerr << c.filename () << " has empty base element.\n"; }
-                        else if (href.find (':') != ::std::string::npos)
-                        {   if (c.verbose ()) ::std::cerr << c.filename ()  << " has offsite base " << a.value () << ", abandoning check.\n";
-                            return; }
-                        if (href.at (0) == '#')
-                        {  if (c.verbose ()) ::std::cerr << c.filename ()  << " ignoring bizarre base " << a.value () << ".\n"; }
-                        c.base (href); }
-            if (is_object (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_classid (a) || is_data (a) || is_usemap (a) || is_name (a))
-                        d.verify_url (c, a.value ());
-            if (is_form (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_action (a)) d.verify_url (c, a.value ());
-            if (is_head (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_profile (a)) d.verify_url (c, a.value ());
-            if (has_cite (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_cite (a)) d.verify_url (c, a.value ());
-            if (has_codebase (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_cite (a)) d.verify_url (c, a.value ());
-            if (has_href (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_href (a)) d.verify_url (c, a.value ());
-            if (has_src (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_src (a)) d.verify_url (c, a.value ());
-            if (has_usemap (e))
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_usemap (a)) d.verify_url (c, a.value ());
-            if (c.microdata ())
-                for (attribute a = e.property (); a.is_valid (); a.next ())
-                    if (is_itemtype (a)) d.verify_url (c, a.value ());
-            e.verify (d, c); } }
+            e.verify_self (d, c); }
+
+bool element::has_url () const
+{   switch (tag ())
+    {   case MyHTML_TAG_A :
+		case MyHTML_TAG_APPLET :
+        case MyHTML_TAG_AREA :
+		case MyHTML_TAG_ARTICLE :
+        case MyHTML_TAG_AUDIO :
+        case MyHTML_TAG_BLOCKQUOTE :
+        case MyHTML_TAG_DEL :
+        case MyHTML_TAG_EMBED :
+        case MyHTML_TAG_FORM :
+        case MyHTML_TAG_FRAME :
+        case MyHTML_TAG_HEAD :
+        case MyHTML_TAG_IFRAME :
+        case MyHTML_TAG_IMG :
+        case MyHTML_TAG_INPUT :
+        case MyHTML_TAG_INS :
+		case MyHTML_TAG_LINK :
+        case MyHTML_TAG_OBJECT :
+        case MyHTML_TAG_Q :
+        case MyHTML_TAG_SCRIPT :
+        case MyHTML_TAG_SECTION :
+        case MyHTML_TAG_SOURCE :
+        case MyHTML_TAG_TRACK :
+        case MyHTML_TAG_VIDEO :
+            return true; }
+    return false; }
