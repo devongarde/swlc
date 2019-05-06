@@ -5,12 +5,12 @@ https://dylanharris.org/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License,  or
+the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #define CODEBASE    "codebase"
 #define DATA        "data"
 #define HREF        "href"
-#define ITEMTYPE    "itemtype"
+#define ITEMTYPE    "itemtype" // WARNING: adding another attribute starting with 'i' will require a change to url_expected below. It cheats.
 #define PROFILE     "profile"
 #define SRC         "src"
 #define USEMAP      "usemap"
@@ -41,8 +41,18 @@ void attribute::init ()
         symbol_.insert (symbol_table [i]); }
 
 bool attribute::url_expected (context& c) const
-{   if (is_boring ()) return false;
-    symbol_t::const_iterator i = symbol_.find (::boost::algorithm::to_lower_copy (::std::string (key ())));
-    if (i == symbol_.cend ()) return false;
-    if (c.microdata ()) return true;
-    return (i -> at (0) != 'i'); }
+{   if (is_interesting ())
+    {   ::std::string name = ::boost::algorithm::to_lower_copy (::std::string (key ()));
+        switch (name.length ())
+        {   case 3 :
+	    case 4 :
+	    case 6 :
+	    case 7 :
+	    case 8 :
+	    {   symbol_t::const_iterator i = symbol_.find (name);
+    	        if (i == symbol_.cend ()) return false;
+    	        if (c.microdata ()) return true;
+                return (i -> at (0) != 'i'); }
+	    default :
+	        /* drop through */ ; } }
+    return false; }

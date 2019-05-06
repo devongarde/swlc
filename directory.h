@@ -40,16 +40,19 @@ class directory
     static external external_;
     bool add_to_content (::boost::filesystem::directory_entry& i);
     bool is_present (::boost::filesystem::path::iterator& i, const ::boost::filesystem::path::iterator& last) const;
-    bool scan ();
+protected:
+    directory (const ::std::string& name, const directory* mummy) : path_ (name), mummy_ (mummy)
+    {   scan (); }
 public:
-    explicit directory (const ::std::string& name, const directory* mummy = nullptr) : path_ (name), mummy_ (mummy)
-    {   if (root_ == nullptr) root_ = this;
-        if (is_valid ()) scan (); }
+    explicit directory (const ::std::string& name) : path_ (name), mummy_ (nullptr)
+    {   if (root_ == nullptr) root_ = this; }
     static void set_root (directory* root) { root_ = root; }
     const ::std::string& name () const { return path_.filename ().string (); }
+    bool empty () const { return content_.empty (); }
     bool is_valid () const;
     bool is_present (const ::boost::filesystem::path& link) const;
     bool add_virtual (const ::std::string& virt, const ::std::string& path);
+    bool scan ();
     void verify (context& c) const;
     void verify_url (context& c, const ::std::string& url) const;
     void verify_external (context& c, const ::std::string& url) const;

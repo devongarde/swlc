@@ -52,7 +52,8 @@ bool directory::is_present (const ::boost::filesystem::path& link) const
     return is_present (i, link.end ()); }
 
 bool directory::scan ()
-{   for (directory_entry& x : directory_iterator (path_))
+{  if (! is_valid ()) return false;
+    for (directory_entry& x : directory_iterator (path_))
         if (! add_to_content (x)) return false;
     return true; }
 
@@ -67,7 +68,7 @@ bool directory::is_valid () const
 {   return exists (path_) && is_directory (path_); }
 
 bool directory::add_virtual (const ::std::string& virt, const ::std::string& path)
-{   if (is_present (virt)) return false;
+{   if (is_present (virt)) return true;
     return content_.insert (directory::value_t (virt, self_ptr (new directory (path, this)))).second; }
 
 void directory::report (const ::std::string& indent) const
@@ -77,7 +78,7 @@ void directory::report (const ::std::string& indent) const
             i.second->report (indent + " "); } }
 
 void directory::verify (context& c) const
-{   for (auto i : content_)
+{  for (auto i : content_)
         if (i.second != nullptr)
             i.second -> verify (c);
         else if (is_webpage (i.first, c.extensions ()))

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include "page.h"
 #include "context.h"
 #include <iostream>
+#include <boost/process.hpp>
 
 int main (int argc, char** argv)
 {   attribute::init ();
@@ -33,8 +34,29 @@ int main (int argc, char** argv)
     if (c.verbose ()) ::std::cout << "Collecting information...\n";
     directory d (c.root ());
     vstr_t virt (c.virtuals ());
-    for (::std::string v : virt)
-        add_virtual (d, v);
+    try
+    {   if (! d.scan ())
+        {   ::std::cerr << "scan of " << c.root () << " failed.\n";
+            return 3; }
+        for (::std::string v : virt)
+            if (! add_virtual (d, v))
+            {   if (! v.empty ()) ::std::cerr << "scan of " << v << " failed.\n";
+                return 3; } }
+    catch (const ::boost::process::process_error& e)
+    { ::std::cerr << "scan, process error " << e.code () << ": " << e.what () << "\n"; return 3; }
+    catch (const ::std::system_error& e)
+    { ::std::cerr << "scan, system error " << e.code () << ": " << e.what () << "\n"; return 3; }
+    catch (...)
+    { ::std::cerr << "scan,, unknown exception\n"; return 3; }
     if (c.debug ()) d.report ("");
+    if (d.empty ()) { ::std::cerr << "no content.\n"; return 2; }
     if (c.verbose ()) ::std::cout << "Checking links...\n";
-    d.verify (c); }
+    try
+    { d.verify (c); }
+    catch (const ::boost::process::process_error& e)
+    { ::std::cerr << "verify process error " << e.code () << ": " << e.what () << "\n"; return 3; }
+    catch (const ::std::system_error& e)
+    { ::std::cerr << "verify, system error " << e.code () << ": " << e.what () << "\n"; return 3; }
+    catch (...)
+    { ::std::cerr << "verify, unknown exception\n"; return 3; }
+    return 0; };

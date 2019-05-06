@@ -33,16 +33,15 @@ using boost::bad_lexical_cast;
 void test_hypertext (context& c, const ::std::string& url, bool is_https)
 {   ipstream pipe_stream;
     int code = 0;
-    ::std::string line, cmdline;
-    if (is_https) cmdline = "curl -o NUL --silent --head --ssl-norevoke -3 --write-out %{http_code} ";
-    else cmdline = "curl -o NUL --silent --head --write-out %{http_code} ";
+    ::std::string line, cmdline ("curl -o NUL --silent --head --write-out %{http_code} ");
+    if (is_https && ! c.revoke ()) cmdline += "--ssl-norevoke ";
     cmdline += url;
     if (c.debug ()) ::std::cout << c.filename () << " : " << cmdline << "\n";
     try
-    {   child baby (cmdline, std_out > pipe_stream);
+    {   child ext (cmdline, std_out > pipe_stream);
         while (pipe_stream && ::std::getline (pipe_stream, line) && ! line.empty ())
             if (! code) code = lexical_cast <int> (line);
-        baby.wait(); }
+        ext.wait (); }
     catch (...)
     {   ::std::cerr << "Cannot check external links. Please verify your installation of curl.\n";
         c.external (false);
@@ -68,4 +67,5 @@ bool external::verify (context& c, const ::std::string& url)
     {   test_connection (c, url);
         url_.insert (value_t (url, c.code ())); }
     if ((c.code () >= 400) && (c.code () < 500)) return false;
+    if (! c.forwarded ()) return true;
     return ((c.code () != 301) && (c.code () != 308)); };

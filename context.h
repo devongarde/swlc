@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include <iostream>
 
 class context
-{   bool debug_, external_, microdata_, once_, repeated_, valid_, verbose_;
+{   bool debug_, external_, forwarded_, microdata_, once_, repeated_, revoke_, valid_, verbose_;
     int code_;
     ::std::string base_, filename_, index_, root_;
     vstr_t extensions_, site_, virtuals_;
@@ -33,29 +33,33 @@ public:
     const ::std::string base () const { return base_; }
     bool debug () const { return debug_; }
     int code () const { return code_; }
-    bool external () const { return external_; }
     const vstr_t extensions () const { return extensions_; }
+    bool external () const { return external_; }
     const ::std::string filename () const { return filename_; }
+    bool forwarded () const { return forwarded_; }
     const ::std::string index () const { return index_; }
     bool microdata () const { return microdata_; }
     bool once () const { return once_; }
     bool repeated () const { return repeated_; }
+    bool revoke () const { return revoke_; }
     const ::std::string root () const { return root_; }
     const vstr_t site () const { return site_; }
     bool verbose () const { return verbose_; }
     const vstr_t virtuals () const { return virtuals_; }
     bool is_valid () const { return valid_; }
-    void base (const ::std::string& s) { base_ = s; }
-    void code (const int i) { code_ = i; }
-    void debug (const bool b) { debug_ = b; }
-    void extensions (const vstr_t& s) { extensions_ = s; }
-    void external (const bool b) { external_ = b; }
-    void filename (const ::std::string& s) { filename_ = s; }
-    void index (const ::std::string& s) { index_ = s; }
-    void microdata (const bool b) { microdata_ = b; }
-    void once (const bool b) { once_ = b; }
-    void repeated (const bool b) { repeated_ = b; }
-    void root (const ::std::string& s) { root_ = s; }
-    void site (const vstr_t& s) { site_ = s; }
-    void verbose (const bool b) { verbose_ = b; }
-    void virtuals (const vstr_t& s) { virtuals_ = s; } };
+    context& base (const ::std::string& s) { base_ = s; return *this; }
+    context& code (const int i) { code_ = i; return *this; }
+    context& debug (const bool b) { debug_ = b; return *this; }
+    context& extensions (const vstr_t& s) { extensions_ = s; return *this; }
+    context& external (const bool b) { external_ = b; return *this; }
+    context& filename (const ::std::string& s) { filename_ = s; return *this; }
+    context& forwarded (const bool b) { forwarded_ = b; return *this; }
+    context& index (const ::std::string& s) { index_ = s; return *this; }
+    context& microdata (const bool b) { microdata_ = b; return *this; }
+    context& once (const bool b) { once_ = b; return *this; }
+    context& repeated (const bool b) { repeated_ = b; return *this; }
+    context& revoke (const bool b) { revoke_ = b; return *this; }
+    context& root (const ::std::string& s) { root_ = s; return *this; }
+    context& site (const vstr_t& s) { site_ = s; return *this; }
+    context& verbose (const bool b) { verbose_ = b; return *this; }
+    context& virtuals (const vstr_t& s) { virtuals_ = s; return *this; } };

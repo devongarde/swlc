@@ -39,6 +39,6 @@ public:
     const char* key () const { return myhtml_attribute_key (attribute_, NULL); }
     const char* value () const { return myhtml_attribute_value (attribute_, NULL); }
     bool is_valid () const { return attribute_ != nullptr; }
-    bool is_boring () const { return (key () == nullptr) || (value () == nullptr); }
+    bool is_interesting () const { return (value () != nullptr) && (key () != nullptr); }
     bool is_href () const { return ::boost::algorithm::to_lower_copy (::std::string (key ())) == "href"; }
     bool url_expected (context& c) const; };

@@ -27,10 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #define EXTENSION   "extension"
 #define EXTERNAL    "external"
 #define FILE        "file"
+#define FORWARD     "301"
 #define HELP        "help"
 #define INDEX       "index"
 #define MICRODATA   "microdata"
 #define ONCE        "once"
+#define REVOKE      "revoke"
 #define ROOT        "root"
 #define SITE        "site"
 #define VERBOSE     "verbose"
@@ -42,29 +44,31 @@ void options::help (const ::boost::program_options::options_description& aid) co
 
 bool options::process (int argc, char** argv)
 {   ::boost::program_options::options_description basic ("Console Options"), primary ("Standard Options"), hidden, cmd, config, aid;
-	::boost::program_options::positional_options_description pos;
-	pos.add (ROOT, 1);
-	basic.add_options ()
-        (HELP ",h", "output this information")
-		(VERSION ",V", "display version and copyright info")
+    ::boost::program_options::positional_options_description pos;
+    pos.add (ROOT, 1);
+    basic.add_options ()
+        (HELP ",h", "output this information.")
+        (VERSION ",V", "display version and copyright info.")
         ;
-	hidden.add_options ()
-        (ROOT, ::boost::program_options::value < ::std::string > (), "website root directory, default current")
+    hidden.add_options ()
+        (ROOT, ::boost::program_options::value < ::std::string > (), "website root directory, default current.")
         ;
-	primary.add_options ()
-        (DEBUG ",d", "output debug information")
-        (EXTENSION ",x", ::boost::program_options::value < vstr_t > (), "check files with this extension")
-        (EXTERNAL ",e", "check external links (requires curl)")
-        (INDEX ",i", ::boost::program_options::value < ::std::string > (), "index file in directories (none if not defined).")
-        (MICRODATA ",m", "check microdata itemtypes")
-        (ONCE ",o", "report each broken external link once")
-        (VERBOSE ",v", "output extra information")
-        (SITE ",s", ::boost::program_options::value < vstr_t > (), "domain name for local site")
-        (VIRTUAL ",l", ::boost::program_options::value < vstr_t > (), "define virtual directory, arg syntax directory=path")
-		;
-	cmd.add (basic).add (primary).add (hidden);
-	config.add (primary).add (hidden);
-	aid.add (basic).add (primary);
+    primary.add_options ()
+        (FORWARD ",3", "report http forwarding errors, e.g. 301 and 308 (requires -e).")
+        (DEBUG ",d", "output debug information.")
+        (EXTENSION ",x", ::boost::program_options::value < vstr_t > (), "check files with this extension (default html).")
+        (EXTERNAL ",e", "check external links (requires curl).")
+        (INDEX ",i", ::boost::program_options::value < ::std::string > (), "index file in directories (default none).")
+        (MICRODATA ",m", "check microdata itemtypes.")
+        (ONCE ",o", "report each broken external link once (requires -e).")
+        (REVOKE ",r", "do not check whether https certificates have been revoked (requires -e).")
+        (SITE ",s", ::boost::program_options::value < vstr_t > (), "domain name for local site (default none).")
+        (VERBOSE ",v", "output extra information.")
+        (VIRTUAL ",l", ::boost::program_options::value < vstr_t > (), "define virtual directory, arg syntax directory=path.")
+        	;
+    cmd.add (basic).add (primary).add (hidden);
+    config.add (primary).add (hidden);
+    aid.add (basic).add (primary);
     try
     {   ::boost::program_options::store (::boost::program_options::command_line_parser (argc, argv).options (cmd).positional (pos).run (), var_); }
     catch (...)
@@ -72,10 +76,10 @@ bool options::process (int argc, char** argv)
         help (aid);
         return false; }
     ::boost::program_options::notify (var_);
-	if (var_.count (VERSION)) ::std::cout << PROG " (" TITLE ") " VERSION_STRING "\n" COPYRIGHT "\n\n";
-	if (argc < 2 || var_.count (HELP))
+    if (var_.count (VERSION)) ::std::cout << PROG " (" TITLE ") " VERSION_STRING "\n" COPYRIGHT "\n\n";
+    if (argc < 2 || var_.count (HELP))
     {   help (aid);
-		return false; }
+	return false; }
     valid_ = argc > 1;
     return is_valid (); }
 
@@ -83,9 +87,11 @@ void options::contextualise (context& c)
 {   c.debug (var_.count (DEBUG));
     if (var_.count (EXTENSION)) c.extensions ( var_ [EXTENSION].as < vstr_t > ());
     c.external (var_.count (EXTERNAL));
+    c.forwarded (var_.count (FORWARD)).external (var_.count (EXTERNAL));
     if (var_.count (INDEX)) c.index (var_ [INDEX].as < ::std::string > ());
-    c.once (var_.count (ONCE));
-    c.microdata (var_.count (MICRODATA));
+    c.microdata (var_.count (MICRODATA)).external (var_.count (EXTERNAL));
+    c.once (var_.count (ONCE)).external (var_.count (EXTERNAL));
+    c.revoke (var_.count (REVOKE)).external (var_.count (EXTERNAL));
     if (var_.count (ROOT)) c.root (var_ [ROOT].as < ::std::string > ());
     if (var_.count (SITE)) c.site (var_ [SITE].as < vstr_t > ());
     c.verbose (var_.count (VERBOSE) || var_.count (DEBUG));
@@ -96,14 +102,16 @@ void pvs (const vstr_t& data)
         ::std::cout << i << " "; }
 
 void options::report () const
-{   if (var_.count (DEBUG)) ::std::cout << DEBUG "\n";
+{   if (var_.count (FORWARD)) ::std::cout << FORWARD "\n";
+    if (var_.count (DEBUG)) ::std::cout << DEBUG "\n";
     if (var_.count (EXTENSION)) { ::std::cout << EXTENSION ": "; pvs (var_ [EXTENSION].as < vstr_t > ()); ::std::cout << "\n"; }
     if (var_.count (HELP)) ::std::cout << HELP "\n";
-    if (var_.count (ROOT)) ::std::cout << ROOT ": " << var_ [ROOT].as< ::std::string > () << "\n";
     if (var_.count (INDEX)) ::std::cout << INDEX ": " << var_ [INDEX].as< ::std::string > () << "\n";
-    if (var_.count (ONCE)) ::std::cout << ONCE "\n";
     if (var_.count (MICRODATA)) ::std::cout << MICRODATA "\n";
+    if (var_.count (ONCE)) ::std::cout << ONCE "\n";
+    if (var_.count (REVOKE)) ::std::cout << REVOKE "\n";
+    if (var_.count (ROOT)) ::std::cout << ROOT ": " << var_ [ROOT].as< ::std::string > () << "\n";
     if (var_.count (SITE)) { ::std::cout << SITE ": "; pvs (var_ [SITE].as < vstr_t > ()); ::std::cout << "\n"; }
-    if (var_.count (VERSION)) ::std::cout << VERSION "\n";
     if (var_.count (VERBOSE)) ::std::cout << VERBOSE "\n";
+    if (var_.count (VERSION)) ::std::cout << VERSION "\n";
     if (var_.count (VIRTUAL)) { ::std::cout << VIRTUAL ": "; pvs (var_ [VIRTUAL].as< vstr_t > ()); ::std::cout << "\n"; } }
