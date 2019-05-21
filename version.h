@@ -20,18 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #pragma once
 
-/*
-// values set by CMake
-#define PROG @swlc_PROG@
-#define TITLE @swlc_TITLE@
-#define VERSION_MAJOR @swlc_VERSION_MAJOR@
-#define VERSION_MINOR @swlc_VERSION_MINOR@
-#define VERSION_RELEASE @swlc_VERSION_RELEASE@
-#define VERSION_STRING @swlc_VERSION_STRING@
-#define COPYRIGHT @swlc_COPYRIGHT@
-*/
-
 #define PROG "swlc"
 #define TITLE "Static Website Link Checker"
-#define VERSION_STRING "v0.0.7"
+#define VERSION_STRING "v0.0.10"
 #define COPYRIGHT "(c) 2019 Dylan Harris, https://dylanharris.org/"

@@ -22,11 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include "options.h"
 
 context::context (int argc, char** argv)
-    : code_ (0), debug_ (false), external_ (false), forwarded_ (false), microdata_ (false), once_ (false), 
+    : code_ (0), debug_ (false), external_ (false), forwarded_ (false), microdata_ (false), once_ (false),
       repeated_ (false), revoke_ (false), valid_ (false), verbose_ (false)
-{   options o;
-    if (! o.process (argc, argv)) { ::std::cout << "nothing to process\n"; return; }
-    if (! o.is_valid ()) { ::std::cerr << "command line error\n"; return; }
-    o.contextualise (*this);
-    if (verbose ()) o.report ();
-    valid_ = true; }
+{   options o (argc, argv);
+    if (o.is_valid ())
+    {   o.contextualise (*this);
+        if (verbose ()) o.report ();
+        valid_ = ! root ().empty (); } }

@@ -40,14 +40,14 @@ int main (int argc, char** argv)
             return 3; }
         for (::std::string v : virt)
             if (! add_virtual (d, v))
-            {   if (! v.empty ()) ::std::cerr << "scan of " << v << " failed.\n";
+            {   ::std::cerr << "scan of " << v << " failed.\n";
                 return 3; } }
     catch (const ::boost::process::process_error& e)
     { ::std::cerr << "scan, process error " << e.code () << ": " << e.what () << "\n"; return 3; }
     catch (const ::std::system_error& e)
     { ::std::cerr << "scan, system error " << e.code () << ": " << e.what () << "\n"; return 3; }
     catch (...)
-    { ::std::cerr << "scan,, unknown exception\n"; return 3; }
+    { ::std::cerr << "scan, unknown exception\n"; return 3; }
     if (c.debug ()) d.report ("");
     if (d.empty ()) { ::std::cerr << "no content.\n"; return 2; }
     if (c.verbose ()) ::std::cout << "Checking links...\n";

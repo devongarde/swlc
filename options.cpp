@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 void options::help (const ::boost::program_options::options_description& aid) const
 {   ::std::cout << PROG " [switch...] [file...]\n" << aid << "\n"; }
 
-bool options::process (int argc, char** argv)
+void options::process (int argc, char** argv)
 {   ::boost::program_options::options_description basic ("Console Options"), primary ("Standard Options"), hidden, cmd, config, aid;
     ::boost::program_options::positional_options_description pos;
     pos.add (ROOT, 1);
@@ -74,14 +74,11 @@ bool options::process (int argc, char** argv)
     catch (...)
     {   ::std::cout << "parameter error.\n";
         help (aid);
-        return false; }
+        return; }
     ::boost::program_options::notify (var_);
     if (var_.count (VERSION)) ::std::cout << PROG " (" TITLE ") " VERSION_STRING "\n" COPYRIGHT "\n\n";
-    if (argc < 2 || var_.count (HELP))
-    {   help (aid);
-	return false; }
-    valid_ = argc > 1;
-    return is_valid (); }
+    valid_ = argc >= 2;
+    if (var_.count (HELP) || ! valid_) help (aid); }
 
 void options::contextualise (context& c)
 {   c.debug (var_.count (DEBUG));
