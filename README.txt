@@ -3,6 +3,8 @@ see LICENCE.txt for copyright & licence notice
 written by dylan harris
 https://dylanharris.org/swlc
 
+THIS PROJECT IS ARCHIVED. IT HAS BEEN REPLACED BY ssc.
+
 This program checks static web sites at source for broken links. It is relatively fast.
 
 swlc -h
